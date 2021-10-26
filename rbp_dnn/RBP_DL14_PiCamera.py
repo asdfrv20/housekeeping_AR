@@ -4,11 +4,12 @@ import cv2
 import numpy as np
 import time
 
-frame_width = 300
+frame_width = 300       # frame의 크기 지정 
 frame_height = 300
 frame_resolution = [frame_width, frame_height]
-frame_rate = 16
-margin = 30
+frame_rate = 16         # 초당 몇개의 frame인가?
+margin = 30             # box만들때 간격을 주기 위함
+
 # initialize the camera and grab a reference to the raw camera capture
 camera = PiCamera()
 camera.resolution = frame_resolution
