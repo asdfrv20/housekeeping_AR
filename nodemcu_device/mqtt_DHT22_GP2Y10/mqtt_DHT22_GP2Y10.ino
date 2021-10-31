@@ -10,6 +10,7 @@ const char* ssid = "RaspberryPanda";
 const char* password = "457a896a**";
 const char* mqtt_server = "192.168.0.111";
 const char* topic = "raspberryPanda/sensor/dhtDust";
+const char* clientID = "dhtDust";
 
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -34,6 +35,16 @@ float calcVoltage = 0;
 float dustDensity = 0;
 
 float DustDensity;
+
+void setup(){
+  Serial.begin(115200);
+  dht.begin();
+  pinMode(ledPower, OUTPUT);
+  setup_wifi();
+  client.setServer(mqtt_server, 1883);
+  client.setCallback(callback);
+  client.connect(clientID);
+}
 
 void setup_wifi(){
   delay(10);
@@ -153,15 +164,6 @@ void mqtt_publish(float Humi, float Temp, float DustDensity){
     client.publish(topic, msg);
   }
   delay(2000); 
-}
-
-void setup(){
-  Serial.begin(115200);
-  dht.begin();
-  pinMode(ledPower, OUTPUT);
-  setup_wifi();
-  client.setServer(mqtt_server, 1883);
-  client.setCallback(callback);
 }
 
 void loop(){

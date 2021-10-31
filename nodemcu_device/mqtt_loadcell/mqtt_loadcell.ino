@@ -2,7 +2,7 @@
 #include <PubSubClient.h>
 #include "HX711.h"
 
-#define calibration_factor -7045.5  
+#define calibration_factor - 7050
 #define DOUT D5
 #define CLK D6
 
@@ -11,18 +11,28 @@ const char* ssid = "RaspberryPanda";
 const char* password = "457a896a**";
 const char* mqtt_server = "192.168.0.111";
 const char* topic = "raspberryPanda/sensor/loadcell";
+const char* clientID = "loadcell";
 
 WiFiClient espClient;
 PubSubClient client(espClient);
 long lastMsg = 0;
-char msg[20];
+char msg[50];
 String packet;
 
 // loadcell 관련 변수 설정
 float Weight;
+HX711 scale;
 
-HX711 scale(DOUT, CLK);
-
+void setup() {
+  Serial.begin(115200);
+  scale.begin(DOUT, CLK);
+  scale.set_scale(calibration_factor);
+  scale.tare();
+  setup_wifi();
+  client.setServer(mqtt_server, 1883);
+  client.setCallback(callback);
+  client.connect(clientID);
+}
 
 void setup_wifi() {
   delay(10);
@@ -64,29 +74,24 @@ void callback(char* topic, byte* payload, unsigned int length) {
 }
 
 void reconnect() {
-  // Loop until we're reconnected
-  while (!client.connected()) {
+  //Loop until we're recnnected
+  while (!client.connected()){
     Serial.print("Attempting MQTT connection...");
-    // Attempt to connect
-    if (client.connect("ESP8266Client")) {
-      Serial.println("connected");
-      // Once connected, publish an announcement...
+    if (client.connect("ESP8266Clinet")){
+      Serial.println("connectd");
       client.publish("outTopic", "hello world");
-      // ... and resubscribe
-      client.subscribe("inTopic");
+      client.subscribe("inTopci");
     } else {
       Serial.print("failed, rc=");
       Serial.print(client.state());
       Serial.println(" try again in 5 seconds");
-      // Wait 5 seconds before retrying
-      ESP.wdtFeed();
       delay(5000);
     }
-  }
+  }  
 }
 
 float getWeight(){
-  float w = scale.get_units()*0.0453;
+  float w = scale.get_units()*0.07267;
   
   if(isnan(w)){
     Serial.println("Failed to read weight sensor."); 
@@ -99,34 +104,23 @@ float getWeight(){
   return(w);  
 }
 
-
 void mqtt_publish(float Weight){
-  if (!client.connected()) {
-    reconnect();
+  if(!client.connected()){
+    reconnect();  
   }
   client.loop();
-
+  
   long now = millis();
   if (now - lastMsg > 2000) {
     lastMsg = now;
 
     packet = "weight : " + String(Weight) + " kg"; 
-    packet.toCharArray(msg, 20); 
+    packet.toCharArray(msg, 50); 
     Serial.print("Publish message: ");
     Serial.println(msg);
     client.publish(topic, msg);
   }
   delay(2000); //2초 단위로 Publishing
-}
-
-void setup() {
-  Serial.begin(115200);
-  setup_wifi();
-  client.setServer(mqtt_server, 1883);
-  client.setCallback(callback);
-
-  scale.set_scale(calibration_factor);
-  scale.tare();
 }
 
 void loop(){
