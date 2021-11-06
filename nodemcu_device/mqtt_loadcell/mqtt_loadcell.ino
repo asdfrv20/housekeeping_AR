@@ -114,7 +114,7 @@ void mqtt_publish(float Weight){
   if (now - lastMsg > 2000) {
     lastMsg = now;
 
-    packet = "weight : " + String(Weight) + " kg"; 
+    packet = "{ \"weight\" : " + String(Weight) + " }"; 
     packet.toCharArray(msg, 50); 
     Serial.print("Publish message: ");
     Serial.println(msg);

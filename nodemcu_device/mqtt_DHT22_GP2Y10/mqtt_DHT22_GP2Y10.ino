@@ -24,7 +24,7 @@ DHT dht(DHTPIN, DHTTYPE);
 
 // 미세먼지 검출기 Pin & 변수 설정
 int measurePin = A0;   // Connect PM sensor to Arduino A0 pin 
-int ledPower = 16;     // GPIO 16
+int ledPower = 16;     // GPIO 16 (D0)
 
 int samplingTime = 280; // 3개의 항목은 제조사에서 지정한 값(변경X)
 int deltaTime = 40;     
@@ -114,7 +114,6 @@ float getHumi() {         //DHT22 습도를 받아오는 함수
 }
 
 float getTemp() {       //DHT22 온도를 받아오는 함수
-  
   float t = dht.readTemperature();
 
   Serial.print("Temperature: ");
@@ -157,7 +156,7 @@ void mqtt_publish(float Humi, float Temp, float DustDensity){
   if (now - lastMsg > 2000){
     lastMsg = now;
 
-    packet = "humidity : " + String(Humi) + "% " + "temperature : " + String(Temp) + "*C " + "dustdensity :" + String(DustDensity);
+    packet = "{ \"temperature\": " + String(Temp) + ", \"humiditiy\": " + String(Temp) + ", \"dustdensity\": " + String(DustDensity) + " }";
     packet.toCharArray(msg, 75);
     Serial.print("Publish message: ");
     Serial.println(msg);
