@@ -23,11 +23,25 @@ String packet;
 float Weight;
 HX711 scale;
 
+// LED 관련 변수 설정(LED 애노드 타입[+극이 3색 공통])
+int R = 16;   //GPIO 16(D0)
+int G = 4;    //GPIO 4(D2)
+int B = 5;    //GPIO 5(D1)
+
 void setup() {
   Serial.begin(115200);
+  
   scale.begin(DOUT, CLK);
   scale.set_scale(calibration_factor);
   scale.tare();
+
+  pinMode(R, OUTPUT);
+  pinMode(G, OUTPUT);
+  pinMode(B, OUTPUT);
+  digitalWrite(R, HIGH);
+  digitalWrite(G, HIGH);
+  digitalWrite(B, HIGH);  
+  
   setup_wifi();
   client.setServer(mqtt_server, 1883);
   client.setCallback(callback);
@@ -90,6 +104,27 @@ void reconnect() {
   }  
 }
 
+// LED 제어 - LED 애노드 타입이므로 신호 반대로 줄 것.
+void controlLED(float w){
+
+  if(w<=1){                //1kg 이하: Blue
+    digitalWrite(R, HIGH);
+    digitalWrite(G, HIGH);
+    digitalWrite(B, LOW);
+    delay(100);
+  }else if(w<=5){          // 1kg~5kg: Green
+    digitalWrite(R, HIGH);
+    digitalWrite(G, LOW);
+    digitalWrite(B, HIGH);
+    delay(100);
+  } else{                  // 5kg 초과: Red
+    digitalWrite(R, LOW);
+    digitalWrite(G, HIGH);
+    digitalWrite(B, HIGH);
+    delay(100);
+  } 
+}
+
 float getWeight(){
   float w = scale.get_units()*0.07267;
   
@@ -100,6 +135,8 @@ float getWeight(){
   Serial.print("Weight: ");
   Serial.print(w);
   Serial.println(" kg");
+
+  controlLED(w);
   
   return(w);  
 }
