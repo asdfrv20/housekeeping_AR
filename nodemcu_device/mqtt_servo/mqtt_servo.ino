@@ -14,9 +14,9 @@
 //WiFI 및 MQTT 변수 설정 
 const char* ssid = "RaspberryPanda";            // Wif 연결을 위한 정보
 const char* password = "457a896a**";
-char* mqtt_server = "192.168.0.111";            // MQTT brocker server IP address
+//char* mqtt_server = "192.168.0.111";          // Raspberry Pi를 서버로 활용한 경우
+char* mqtt_server = "192.168.0.102";            // Windows(Notebook)을 서버로 활용한 경우
 char* lightControlTopic = "raspberryPanda/control/servo";   // Light Control topic
-//char* lightStatusTopic = "raspbeeryPnada/status/servo";     // Light Statues topic
 char* clientID = "servo";
 
 char msg[50];                  
@@ -82,15 +82,27 @@ void callback(char* topic, byte* payload, unsigned int length) {
   String msgString = String(msg);
   Serial.println("Payload: "+ msgString);
   
-  //전송된 메시지가 "main"이면 light_main를 토글시키고 이에 따라 servo_main 동작(ON/OFF)
-  if (msgString == "main"){
-    light_main = !light_main;
+  //전송된 메시지가 "main on"이면 light_main = True, servo_main을 ON으로 바꾸기 
+  if (msgString == "main on"){
+    light_main = true;
     controlMain(light_main);
   }
 
-  //전송된 메시지rk "restroom"이면 lgiht_restroom을 토글시키고 이에 따라 servo_restroom 동작(ON/OFF)
-  if(msgString == "restroom"){
-    light_restroom = !light_restroom;
+  //전송된 메시지가 "main off"이면 light_main = False, servo_main을 OFF으로 바꾸기 
+  if (msgString == "main off"){
+    light_main = false;
+    controlMain(light_main);
+  }
+
+  //전송된 메시지가 "restroom on"이면 light_restroom = Ture, servo_restroom을 ON으로 바꾸기 
+  if(msgString == "restroom on"){
+    light_restroom = true;
+    controlRestroom(light_restroom);
+  }
+  
+  //전송된 메시지가 "restroom on"이면 light_restroom = Ture, servo_restroom을 ON으로 바꾸기 
+  if(msgString == "restroom off"){
+    light_restroom = false;
     controlRestroom(light_restroom);
   }
 }

@@ -106,7 +106,7 @@ def getevents():
     response.cache_control = 'no-cache'
 
     # Set client-side auto-reconnect timeout, ms.
-    yield 'retry: 500\n\n'
+    yield 'retry: 100\n\n'
 
     q = Queue()
     subscriptions.append(q)

@@ -9,7 +9,8 @@
 //WiFi 및 MQTT 변수 설정 
 const char* ssid = "RaspberryPanda";
 const char* password = "457a896a**";
-const char* mqtt_server = "192.168.0.111";
+//const char* mqtt_server = "192.168.0.111";    //Raspberry Pi를 서버로 사용할 경우
+const char* mqtt_server = "192.168.0.102";    //Windows(Notebook)을 서버로 사용할 경우
 const char* topic = "raspberryPanda/sensor/loadcell";
 const char* clientID = "loadcell";
 
