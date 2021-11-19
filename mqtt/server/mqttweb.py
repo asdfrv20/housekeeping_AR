@@ -12,7 +12,7 @@ from bottle import GeventServer, run
 import paho.mqtt.client as mqtt
 import threading, time, json
 
-host = "192.168.0.111"
+host = "192.168.0.102"
 port = 9000
 subscriptions = []
 
@@ -34,7 +34,7 @@ class MqttConnector(threading.Thread):
 
         except (KeyboardInterrupt, SystemExit): #when you press ctrl+c
             print("\nKilling Thread...")
-            self.running = False    
+            self.running = False
         except StopIteration:
             self.client = None
 
@@ -42,7 +42,7 @@ class MqttConnector(threading.Thread):
         print("Connected with result code" + str(rc))
 
         #client.subscribe("$SYS/#")
-        client.subscribe("raspberryPanda/sensor/#")      # "topic" 입력 
+        client.subscribe("raspberryPanda/sensor/dhtDust")      # "topic" 입력 
 
     def on_message(self, client, userdata, msg):
         print(msg.topic+" "+str(msg.payload))
@@ -102,6 +102,7 @@ def controlled():
 
 @get("/dhtDust")
 def getevents():
+
     response.content_type  = 'text/event-stream'
     response.cache_control = 'no-cache'
 
@@ -110,23 +111,23 @@ def getevents():
 
     q = Queue()
     subscriptions.append(q)
-    print(subscriptions)
     try:
         while True:
             result = q.get()
             ev = ServerSentEvent(str(result))
+            print('desc_map: ',ev.desc_map)
             yield ev.encode()
     except GeneratorExit: # Or maybe use flask signals
         subscriptions.remove(q)
 
 @get("/ssechart")
 def ssechart():
-    return template("ssechart", host=host, port=port)
+    return template("ssechart.html", host=host, port=port)
     #return template("debug")
 
 @get("/")
 def index():
-    return template("index")
+    return template("index.html")
 
 if __name__ == "__main__":
     mqc = MqttConnector(host, port=1883)

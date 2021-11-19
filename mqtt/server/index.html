@@ -1,0 +1,37 @@
+<html>
+<head>
+<script>
+  var ledUri = "/led";
+  var value = 0;
+  function ledControl() {
+    if ( window.XMLHttpRequest ) {
+      request = new XMLHttpRequest();
+    }
+    if ( !request ) {
+      alert("XMLHttpRequest Error");
+      return false;
+    }
+    value = !value;
+    var send =(value != 0 ? "ON":"OFF");
+    request.open('POST', ledUri, true);
+    request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    request.send(send);
+  }
+
+  function dhtChart() {
+     window.location.href='/ssechart';
+  }
+</script>
+</head>
+<body>
+<h1>RaspberryPanda's Room</h1>
+<h2>온도/습도& 미세먼지 모니터링</h2>
+<input type='button' onClick="dhtChart()" value="온도/습도/미세먼지 농도" />
+<h2>빨래 무게 모니터링</h2>
+<input type='button' onClick="loadcellChart()" value="빨래 무게" >
+<h2>설거지 상태 모니터링</h2>
+<input type='button' onClick="cameraChart()" value="설거지 상황">
+<h2>전등 스위치 제어</h2>
+<input type='button' onClikc="servoControl()" value="ON/OFF">
+</body>
+</html>
